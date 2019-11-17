@@ -1,0 +1,7 @@
+WASAStartup初始化
+socket创建监听SOCKET
+bind监听SOCKET
+listen设置等待连接状态
+accept连接生成会话SOCKET
+send和recv会话
+调用closesocket关闭
