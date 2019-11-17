@@ -13,13 +13,13 @@ void Jsocket::setConnectNumMax(int n)
     {
         std::cout << "setConnectNumMax() error negative number" << std::endl;
     }
-    connNumMax= n;
+    connNumMax = n;
 }
 
 //设置虚拟路径
-void Jsocket::setPath(std::string s)
+void Jsocket::setHomePath(std::string s)
 {
-    path = s;
+    homePath = s;
 }
 
 //初始化winsock
@@ -128,23 +128,109 @@ bool Jsocket::handlerThreadStartup(SOCKET s)
 }
 
 //会话子线程
-void Jsocket::handlerThread(SOCKET clientSock)
+void Jsocket::handlerThread(SOCKET connSock)
 {
-
+    char buf[BUFSIZE];      //缓冲区
+    int length;             //接受长度
+    FD_SET set;             //可读性检查socket集合
+    timeval tv = {1, 0};    //超时时间
     while(true)
     {
-        //尝试接收消息
-
-        if()
+        //清空set
+        FD_ZERO(&set);
+        FD_SET(connSock, &set);
+        //判断是否接受到内容
+        if(select(0, &set, NULL, NULL, &tv) == 0)
         {
-            //发送结束
-            break;
+            //超时无修改
+            continue;
         }
-
-        //消息处理
-
+        else
+        {
+            //接受内容至buf
+            length = recv(connSock, buf, BUFSIZE, 0);
+            if(length < 0)
+            {
+                //发送错误
+                break;
+            }
+            //处理buf中缓存的请求
+            buf[length] = '\0';
+            std::cout << "buf:\n" << buf << std::endl;
+            std::string objectPath = requestObjectPath(buf);
+            showRequest(connSock, objectPath);
+            sendObject(connSock, objectPath);
+        }
     }
     //关闭会话子线程
-    closesocket(clientSock);
+    closesocket(connSock);
     connNum--;
+}
+
+std::string Jsocket::requestObjectPath(std::string buf)
+{
+    int pos1, pos2, pos3;
+    //pos1寻找"/"的位置
+    if((pos1 = buf.find("/", 0)) == std::string::npos)
+    {
+        //解析失败
+        std::cout << "requestObjectPath fail" << std::endl;
+        return nullptr;
+    }
+    //pos2寻找" "的位置
+    pos2 = buf.find(" ", pos1);
+    //pos3寻找"?"的位置并修正pos2的位置
+    if((pos3 = buf.find("?", pos1) != std::string::npos) && pos2 > pos3)
+    {
+        pos2 = pos3;
+    }
+    //得到文件路径
+    std::string objectName = buf.substr(pos1, pos2 - pos1);
+    for(int i = 0; i < objectName.size(); i++)
+        if(objectName[i] == '/')
+            objectName[i] = '\\';
+    std::string objectPath = homePath + objectName;
+    return objectPath;
+}
+
+void Jsocket::sendObject(SOCKET connSock, std::string objectPath)
+{
+    char buf[BUFSIZE];  //send对象缓冲区
+    std::ifstream object(objectPath, std::ios::binary);
+    if(object)
+    {
+        //找到请求对象
+        sscanf(buf, "HTTP/1.1 200 OK\nContent-Length: %d\nContent-Type: %s\n\n\0", object.tellg(), );
+    }
+    else
+    {
+        //请求对象不存在，使用ERROR404页面代替
+        std::cout << "sendObject() fail object 404 " << objectPath << std::endl;
+        object.open(homePath + ERROR404HTML, std::ios::binary);  //打开404文件
+        sscanf(buf, "HTTP/1.1 404 Not Found\nContent-Length: %d\nContent-Type: %s\n\n\0", object.tellg(), );
+    }
+    //发送报文头
+    send(connSock, buf, strlen(buf), 0);
+    //发送报文体
+    do
+    {
+        //不断读入buf并发送
+        object.read(buf, BUFSIZE);
+        send(connSock, buf, object.gcount(), 0);
+    } while(object.gcount() == BUFSIZE);    //最后一次发送不填满buf
+    object.close();
+}
+
+void Jsocket::showRequest(SOCKET connSock, std::string objectPath)
+{
+    sockaddr_in addr;
+    int nameLen, nRc;
+    nRc = getpeername(connSock, (LPSOCKADDR)&addr, &nameLen);
+    if (nRc != SOCKET_ERROR)
+    {
+        std::string clientIP = inet_ntoa(addr.sin_addr);
+        unsigned short ulPPort = addr.sin_port;
+        //打印请求信息
+        std::cout << "IP:" << clientIP << " port:" << ulPPort << " path:" << objectPath << std::endl;
+    }
 }
