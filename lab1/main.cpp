@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "jsocket.h"
 
 #include <QApplication>
 
