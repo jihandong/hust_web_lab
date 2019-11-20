@@ -24,7 +24,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>update IP list</string>
+     <string>change IP</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButtonPort">

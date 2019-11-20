@@ -6,7 +6,7 @@ std::thread* Jsocket::servThread = nullptr;
 SOCKET Jsocket::servSocket = NULL;
 u_long Jsocket::servIP = 0;
 int Jsocket::servPort = 8888;
-std::string Jsocket::homePath = "C:\\Users\\13120\\Desktop\\jsocket";
+std::string Jsocket::homePath = "C:\\Users\\13120\\Desktop\\jsocket\\home1";
 int Jsocket::connNum = 0;
 int Jsocket::connNumMax = 50;
 
@@ -39,7 +39,9 @@ void Jsocket::shutdown()
     //等待会话子线程结束
     std::cout << "shutdown handlers joining ..." << std::endl;
     while (connNum > 0) ;
-    std::cout << "shutdown handlers joining ..." << std::endl;
+    std::cout << "shutdown handlers joined !" << std::endl;
+    //关闭服务器套接字
+    closesocket(servSocket);
     //提示成功
     std::cout << "shutdown success" << std::endl;
 }

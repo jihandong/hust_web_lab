@@ -17,37 +17,12 @@ MainWindow::~MainWindow()
 //刷新IP清单
 void MainWindow::on_pushButtonIP_clicked()
 {
-    char host[255];
-    //得到主机地址结构信息的指针p
-    if (gethostname(host, sizeof(host)) == SOCKET_ERROR)
-        std::cout << "gethostname() failed" << std::endl;
-    struct hostent *p = gethostbyname(host);
-    if (!p)
-        std::cout << "gethostbyname() failed" << std::endl;
-    else
-    {
-        //清空清单
-        ui->comboBoxIP->clear();
-        //遍历每个可用的IP地址
-        for(int i = 0; p->h_addr_list + i != nullptr; i++)
-        {
-            struct in_addr in;
-            memcpy(&in, p->h_addr_list[i], sizeof(struct in_addr));
-            //在清单添加新条目
-            QString ipQS(inet_ntoa(in));
-            ui->comboBoxIP->addItem(ipQS);
-        }
-    }
-}
-
-//选择特定IP
-void MainWindow::on_comboBoxIP_currentIndexChanged(const QString &ipQS)
-{
-    std::string ip = ipQS.toStdString();
-    //修改ip
-    js->setIP(ip);
-    //显示当前IP
-    ui->textBrowserIP->setText(ipQS);
+   QString ipQS = ui->comboBoxIP->currentText();
+   js->shutdown(); //关闭机器
+   js->setIP(ipQS.toStdString());  //修改IP
+   js->startup();  //机器重启
+   //显示当前IP
+   ui->textBrowserIP->setText(ipQS);
 }
 
 //设置port
@@ -96,4 +71,29 @@ void MainWindow::on_pushButtonReset_clicked()
     ui->textBrowserIP->setText(ipQS);
     ui->textBrowserPort->setText(portQS);
     ui->textBrowserPath->setText(pathQS);
+
+    //初始化IP选择列表
+    char host[255];
+    //得到主机地址结构信息的指针p
+    if (gethostname(host, sizeof(host)) == SOCKET_ERROR)
+        std::cout << "gethostname() failed" << std::endl;
+    struct hostent *p = gethostbyname(host);
+    if (!p)
+        std::cout << "gethostbyname() failed" << std::endl;
+    else
+    {
+        //清空清单
+        ui->comboBoxIP->clear();
+        QString ip0QS("0.0.0.0");
+        ui->comboBoxIP->addItem(ip0QS);
+        //遍历每个可用的IP地址（注意判断地址取完的逻辑）
+        for(int i = 0; p->h_addr_list[i] + p->h_length < p->h_name; i++)
+        {
+            struct in_addr in;
+            memcpy(&in, p->h_addr_list[i], sizeof(struct in_addr));
+            //在清单添加新条目
+            QString ipQS(inet_ntoa(in));
+            ui->comboBoxIP->addItem(ipQS);
+        }
+    }
 }

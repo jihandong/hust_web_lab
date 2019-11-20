@@ -97,7 +97,7 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "MainWindow", nullptr));
-        pushButtonIP->setText(QCoreApplication::translate("MainWindow", "update IP list", nullptr));
+        pushButtonIP->setText(QCoreApplication::translate("MainWindow", "change IP", nullptr));
         pushButtonPort->setText(QCoreApplication::translate("MainWindow", "change port", nullptr));
         pushButtonPath->setText(QCoreApplication::translate("MainWindow", "change homepath", nullptr));
         pushButtonReset->setText(QCoreApplication::translate("MainWindow", "reset server", nullptr));
