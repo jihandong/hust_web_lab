@@ -62,7 +62,7 @@ void MainWindow::on_pushButtonPort_clicked()
         //修改端口重启
         js->startup();
         //显示当前端口
-        QString portQS(port);
+        QString portQS = QString::number(port);
         ui->textBrowserPort->setText(portQS);
     }
 }
@@ -83,14 +83,15 @@ void MainWindow::on_pushButtonReset_clicked()
 {
     //清空服务器对象
     if(js) js->shutdown();
-    printf("on_pushButtonReset_clicked() shutdown\n");  //调试
     delete js;
     js = new Jsocket;
-    //初始化服务器
+    //初始化服务器参数
     js->reset();
+    //启动服务器
+    js->startup();
     //显示到GUI
     QString ipQS(QString::fromStdString((js->getIP())));
-    QString portQS(js->getPort());
+    QString portQS = QString::number(js->getPort());
     QString pathQS(QString::fromStdString((js->getHomePath())));
     ui->textBrowserIP->setText(ipQS);
     ui->textBrowserPort->setText(portQS);

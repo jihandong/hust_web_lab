@@ -5,7 +5,7 @@ bool Jsocket::servState = false;
 std::thread* Jsocket::servThread = nullptr;
 SOCKET Jsocket::servSocket = NULL;
 u_long Jsocket::servIP = 0;
-int Jsocket::port = 8888;
+int Jsocket::servPort = 8888;
 std::string Jsocket::homePath = "C:\\Users\\13120\\Desktop\\jsocket";
 int Jsocket::connNum = 0;
 int Jsocket::connNumMax = 50;
@@ -16,7 +16,9 @@ void Jsocket::startup()
     //发出开机信号
     servState = true;
     //抛出一个服务器线程
-    servThread = new std::thread(Jsocket::acceptStartup, port);
+    servThread = new std::thread(Jsocket::acceptStartup);
+    //提示
+    std::cout << "startup success" << std::endl;
 }
 
 //关机
@@ -27,11 +29,19 @@ void Jsocket::shutdown()
     //尝试关闭服务器线程
     if (servThread && (*servThread).joinable())
     {
+        //提示等待线程
+        std::cout << "shutdown server joining ..." << std::endl;
         (*servThread).join();
+        std::cout << "shutdown server joined !" << std::endl;
+        //删除服务器线程
         delete servThread;
     }
     //等待会话子线程结束
+    std::cout << "shutdown handlers joining ..." << std::endl;
     while (connNum > 0) ;
+    std::cout << "shutdown handlers joining ..." << std::endl;
+    //提示成功
+    std::cout << "shutdown success" << std::endl;
 }
 
 //服务器运行中
@@ -47,7 +57,7 @@ void Jsocket::reset()
     Jsocket::servThread = nullptr;
     servSocket = NULL;
     Jsocket::servIP = 0;
-    port = 8888;
+    servPort = 8888;
     homePath = "C:\\Users\\13120\\Desktop\\jsocket";
     connNum = 0;
     connNumMax = 50;
@@ -62,7 +72,7 @@ void Jsocket::setIP(std::string ip)
 //设置服务器port
 void Jsocket::setPort(int n)
 {
-    port = n;
+    servPort = n;
 }
 
 //设置虚拟路径
@@ -82,7 +92,7 @@ std::string Jsocket::getIP()
 //访问服务器Port
 int Jsocket::getPort()
 {
-    return port;
+    return servPort;
 }
 
 //访问虚拟目录
@@ -113,14 +123,14 @@ bool Jsocket::winsockStartup()
 }
 
 //创建并绑定一个监听socket
-bool Jsocket::bindStartup(u_short port)
+bool Jsocket::bindStartup()
 {
     //初始化服务器socket
     servSocket = socket(AF_INET, SOCK_STREAM, 0);
     //设置addr
     sockaddr_in addr;
     addr.sin_family = AF_INET;
-    addr.sin_port = htons(port);    //u_short->网络字节顺序
+    addr.sin_port = htons(servPort);    //u_short->网络字节顺序
     addr.sin_addr.S_un.S_addr = servIP;
     //尝试绑定
     if(bind(servSocket, (LPSOCKADDR)&addr, sizeof(addr)) == SOCKET_ERROR)
@@ -147,10 +157,18 @@ bool Jsocket::listenStarup()
 }
 
 //开始对连接多线程生成会话socket
-bool Jsocket::acceptStartup(u_short port)
+bool Jsocket::acceptStartup()
 {
+    //启动winsock
+    if(winsockStartup() == false)
+    {
+        //初始化错误
+        std::cout << "acceptStartup() winsockStartup error" << std::endl;
+        return false;
+    }
+
     //创建并绑定一个监听socket
-    if(bindStartup(port) == false)
+    if(bindStartup() == false)
     {
         //绑定错误
         std::cout << "acceptStartup() bind error" << std::endl;
@@ -170,7 +188,23 @@ bool Jsocket::acceptStartup(u_short port)
     sockaddr_in connAddr;               //
     int connAddrLen = sizeof(SOCKADDR); //
     int nRc;                            //错误信息
+    FD_SET set;
+    timeval tv {1, 0};
     while(true){
+        //初始化
+        FD_ZERO(&set);
+        FD_SET(servSocket, &set);
+
+        //判断是否接受到内容
+        if(servState == false)
+        {
+            //停机
+            break;
+        } else if(select(0, &set, nullptr, nullptr, &tv) == 0)
+        {
+            //超时无修改
+            continue;
+        }
         //每当收到客户端连接请求，创建新的会话SOCKET
         connSock = accept(servSocket, (SOCKADDR*)&connAddr, &connAddrLen);
         if(connSock == INVALID_SOCKET)
@@ -191,6 +225,7 @@ bool Jsocket::acceptStartup(u_short port)
 bool Jsocket::handlerThreadStartup(SOCKET s)
 {
     connNum++;
+    std::cout << "new handler thread " << connNum << std::endl;
     std::thread t(handlerThread, s); //创建会话子线程
     t.detach();                      //发射会话子线程
     return true;
@@ -230,15 +265,20 @@ void Jsocket::handlerThread(SOCKET connSock)
             }
             //处理buf中缓存的请求
             buf[length] = '\0';
-            std::cout << "buf:\n" << buf << std::endl;
-            std::string objectPath = requestObjectPath(buf);
-            showRequest(connSock, objectPath);
-            sendObject(connSock, objectPath);
+            std::string objectName = requestObjectPath(buf);
+            if(objectName == "")
+            {
+                //请求对象为空
+                continue;
+            }
+            showRequest(connSock, objectName);
+            sendObject(connSock, homePath + objectName);
         }
     }
     //关闭会话子线程
     closesocket(connSock);
     connNum--;
+    std::cout << "end handler thread " << connNum << std::endl;
 }
 
 //解析请求对象路径
@@ -248,9 +288,9 @@ std::string Jsocket::requestObjectPath(std::string buf)
     //pos1寻找"/"的位置
     if((pos1 = buf.find("/", 0)) == std::string::npos)
     {
-        //解析失败
+        //解析失败，返回默认请求对象
         std::cout << "requestObjectPath fail" << std::endl;
-        return nullptr;
+        return "";
     }
     //pos2寻找" "的位置
     pos2 = buf.find(" ", pos1);
@@ -264,26 +304,28 @@ std::string Jsocket::requestObjectPath(std::string buf)
     for(int i = 0; i < objectName.size(); i++)
         if(objectName[i] == '/')
             objectName[i] = '\\';
-    std::string objectPath = homePath + objectName;
-    return objectPath;
+    return objectName;
 }
 
 //发送对象到会话socket
 void Jsocket::sendObject(SOCKET connSock, std::string objectPath)
 {
     char buf[BUFSIZE];  //send对象缓冲区
+    //修正请求对象
+    if(objectPath == "\\") objectPath = "\\index.html";
+    //将请求文件作为流打开
     std::ifstream object(objectPath, std::ios::binary);
     if(object)
     {
         //找到请求对象
-        sscanf(buf, "HTTP/1.1 200 OK\nContent-Length: %d\n\n\0", object.tellg() );
+        std::cout << "200 " << objectPath << std::endl;
+        sprintf(buf, "HTTP/1.1 200 OK\nContent-Length: %d\n\n\0", getContentLength(objectPath) );
     }
     else
     {
         //请求对象不存在，使用ERROR404页面代替
-        std::cout << "sendObject() fail object 404 " << objectPath << std::endl;
-        object.open(homePath + ERROR404HTML, std::ios::binary);  //打开404文件
-        sscanf(buf, "HTTP/1.1 404 Not Found\nContent-Length: %d\n\n\0", object.tellg() );
+        std::cout << "404 " << objectPath << std::endl;
+        sprintf(buf, "HTTP/1.1 404 Not Found\nContent-Length: %d\n\n\0", getContentLength(ERROR404HTML) );
     }
     //发送报文头
     send(connSock, buf, strlen(buf), 0);
@@ -295,10 +337,23 @@ void Jsocket::sendObject(SOCKET connSock, std::string objectPath)
         send(connSock, buf, object.gcount(), 0);
     } while(object.gcount() == BUFSIZE);    //最后一次发送不填满buf
     object.close();
+    std::cout << "send over: " << objectPath << std::endl;
+}
+
+int Jsocket::getContentLength(std::string objectPath)
+{
+    std::ifstream object(objectPath, std::ios::binary | std::ios::ate);
+    if (!object)
+    {
+        return -1;
+    }
+    int length = object.tellg();
+    object.close();
+    return length;
 }
 
 //显示请求信息
-void Jsocket::showRequest(SOCKET connSock, std::string objectPath)
+void Jsocket::showRequest(SOCKET connSock, std::string objectName)
 {
     sockaddr_in addr;
     int nameLen, nRc;
@@ -308,6 +363,6 @@ void Jsocket::showRequest(SOCKET connSock, std::string objectPath)
         std::string clientIP = inet_ntoa(addr.sin_addr);
         unsigned short ulPPort = addr.sin_port;
         //打印请求信息
-        std::cout << "IP:" << clientIP << " port:" << ulPPort << " path:" << objectPath << std::endl;
+        std::cout << "request: " << clientIP << ":" << ulPPort << "/" << objectName << std::endl;
     }
 }
