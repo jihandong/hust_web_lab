@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+    connect(this,  &MainWindow::textBrowser_append, this, &MainWindow::on_textBrowser_append);
     ui->setupUi(this);
 }
 
@@ -60,10 +61,12 @@ void MainWindow::on_pushButtonReset_clicked()
     if(js) js->shutdown();
     delete js;
     js = new Jsocket;
-    //初始化服务器参数
-    js->reset();
+
+    //初始化服务器参数（绑定到此窗口）
+    js->reset(this);
     //启动服务器
     js->startup();
+
     //显示到GUI
     QString ipQS(QString::fromStdString((js->getIP())));
     QString portQS = QString::number(js->getPort());
@@ -76,10 +79,10 @@ void MainWindow::on_pushButtonReset_clicked()
     char host[255];
     //得到主机地址结构信息的指针p
     if (gethostname(host, sizeof(host)) == SOCKET_ERROR)
-        std::cout << "gethostname() failed" << std::endl;
+        tprintf("gethostname() failed\n");
     struct hostent *p = gethostbyname(host);
     if (!p)
-        std::cout << "gethostbyname() failed" << std::endl;
+        tprintf("gethostbyname() failed\n");
     else
     {
         //清空清单
@@ -96,4 +99,17 @@ void MainWindow::on_pushButtonReset_clicked()
             ui->comboBoxIP->addItem(ipQS);
         }
     }
+}
+
+//打印终端调用接口
+void MainWindow::tprintf(std::string s)
+{
+    std::cout << s << std::endl;
+    emit textBrowser_append(s);
+}
+
+//打印信号槽函数
+void MainWindow::on_textBrowser_append(std::string s)
+{
+    ui->textBrowser->append(QString::fromStdString(s));
 }

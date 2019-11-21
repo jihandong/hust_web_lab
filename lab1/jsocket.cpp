@@ -9,6 +9,7 @@ int Jsocket::servPort = 8888;
 std::string Jsocket::homePath = "C:\\Users\\13120\\Desktop\\jsocket\\home1";
 int Jsocket::connNum = 0;
 int Jsocket::connNumMax = 50;
+MainWindow* Jsocket::wd = nullptr;
 
 //开机
 void Jsocket::startup()
@@ -18,7 +19,7 @@ void Jsocket::startup()
     //抛出一个服务器线程
     servThread = new std::thread(Jsocket::acceptStartup);
     //提示
-    std::cout << "startup success" << std::endl;
+    tprintf("startup success");
 }
 
 //关机
@@ -29,21 +30,16 @@ void Jsocket::shutdown()
     //尝试关闭服务器线程
     if (servThread && (*servThread).joinable())
     {
-        //提示等待线程
-        std::cout << "shutdown server joining ..." << std::endl;
         (*servThread).join();
-        std::cout << "shutdown server joined !" << std::endl;
-        //删除服务器线程
         delete servThread;
     }
     //等待会话子线程结束
-    std::cout << "shutdown handlers joining ..." << std::endl;
+    tprintf("shutdown wait handler threads ...");
     while (connNum > 0) ;
-    std::cout << "shutdown handlers joined !" << std::endl;
     //关闭服务器套接字
     closesocket(servSocket);
     //提示成功
-    std::cout << "shutdown success" << std::endl;
+    tprintf("shutdown success");
 }
 
 //服务器运行中
@@ -53,7 +49,7 @@ bool Jsocket::inservive()
 }
 
 //服务器重置
-void Jsocket::reset()
+void Jsocket::reset(MainWindow* w)
 {
     servState = false;
     Jsocket::servThread = nullptr;
@@ -63,6 +59,7 @@ void Jsocket::reset()
     homePath = "C:\\Users\\13120\\Desktop\\jsocket";
     connNum = 0;
     connNumMax = 50;
+    wd = w;
 }
 
 //设置服务器IP
@@ -111,13 +108,13 @@ bool Jsocket::winsockStartup()
     if(nRc)
     {
         //Winsock初始化错误
-        std::cout << "winsockStarup() error" << std::endl;
+        tprintf("winsockStarup() error");
         return true;
     }
     if(wsaData.wVersion != 0x0101)
     {
         //版本支持不够
-        std::cout << "winsockStarup() low version" << std::endl;
+        tprintf("winsockStarup() low version");
         WSACleanup();
         return false;
     }
@@ -139,7 +136,7 @@ bool Jsocket::bindStartup()
     {
         //绑定错误
         int nRc = WSAGetLastError();
-        std::cout << "bindStarup() error " << nRc << std::endl;
+        tprintf("bindStarup() error " + std::to_string(nRc));
         return false;
     }
     return true;
@@ -152,7 +149,7 @@ bool Jsocket::listenStarup()
     {
         //监听错误
         int nRc = WSAGetLastError();
-        std::cout << "listenStartup() error " << nRc << std::endl;
+        tprintf("listenStartup() error " + std::to_string(nRc));
         return false;
     }
     return true;
@@ -165,7 +162,7 @@ bool Jsocket::acceptStartup()
     if(winsockStartup() == false)
     {
         //初始化错误
-        std::cout << "acceptStartup() winsockStartup error" << std::endl;
+        tprintf("acceptStartup() winsockStartup error");
         return false;
     }
 
@@ -173,7 +170,7 @@ bool Jsocket::acceptStartup()
     if(bindStartup() == false)
     {
         //绑定错误
-        std::cout << "acceptStartup() bind error" << std::endl;
+        tprintf("acceptStartup() bind error");
         return false;
     }
 
@@ -181,7 +178,7 @@ bool Jsocket::acceptStartup()
     if(listenStarup() == false)
     {
         //监听错误
-        std::cout << "acceptStartup() listen error" << std::endl;
+        tprintf("acceptStartup() listen error");
         return false;
     }
 
@@ -213,7 +210,7 @@ bool Jsocket::acceptStartup()
         {
             //创建会话socket出错
             nRc = WSAGetLastError();
-            std::cout << "acceptStartup() error invalid socket " << nRc << std::endl;
+            tprintf("acceptStartup() error invalid socket " + std::to_string(nRc));
         }
         else
         {
@@ -227,7 +224,7 @@ bool Jsocket::acceptStartup()
 bool Jsocket::handlerThreadStartup(SOCKET s)
 {
     connNum++;
-    std::cout << "new handler thread " << connNum << std::endl;
+    tprintf("new handler thread " + std::to_string(connNum));
     std::thread t(handlerThread, s); //创建会话子线程
     t.detach();                      //发射会话子线程
     return true;
@@ -280,7 +277,7 @@ void Jsocket::handlerThread(SOCKET connSock)
     //关闭会话子线程
     closesocket(connSock);
     connNum--;
-    std::cout << "end handler thread " << connNum << std::endl;
+    tprintf("end handler thread " + std::to_string(connNum));
 }
 
 //解析请求对象路径
@@ -291,7 +288,7 @@ std::string Jsocket::requestObjectPath(std::string buf)
     if((pos1 = buf.find("/", 0)) == std::string::npos)
     {
         //解析失败，返回默认请求对象
-        std::cout << "requestObjectPath fail" << std::endl;
+        tprintf("requestObjectPath fail");
         return "";
     }
     //pos2寻找" "的位置
@@ -320,13 +317,13 @@ void Jsocket::sendObject(SOCKET connSock, std::string objectPath)
     if(object)
     {
         //找到请求对象
-        std::cout << "200 " << objectPath << std::endl;
+        tprintf("200 " + objectPath);
         sprintf(buf, "HTTP/1.1 200 OK\nContent-Length: %d\n\n\0", getContentLength(objectPath) );
     }
     else
     {
         //请求对象不存在，使用ERROR404页面代替
-        std::cout << "404 " << objectPath << std::endl;
+        tprintf("404 " + objectPath);
         sprintf(buf, "HTTP/1.1 404 Not Found\nContent-Length: %d\n\n\0", getContentLength(ERROR404HTML) );
     }
     //发送报文头
@@ -339,7 +336,7 @@ void Jsocket::sendObject(SOCKET connSock, std::string objectPath)
         send(connSock, buf, object.gcount(), 0);
     } while(object.gcount() == BUFSIZE);    //最后一次发送不填满buf
     object.close();
-    std::cout << "send over: " << objectPath << std::endl;
+    tprintf("send over: " + objectPath);
 }
 
 int Jsocket::getContentLength(std::string objectPath)
@@ -363,8 +360,13 @@ void Jsocket::showRequest(SOCKET connSock, std::string objectName)
     if (nRc != SOCKET_ERROR)
     {
         std::string clientIP = inet_ntoa(addr.sin_addr);
-        unsigned short ulPPort = addr.sin_port;
+        std::string clientPort = std::to_string(addr.sin_port);
         //打印请求信息
-        std::cout << "request: " << clientIP << ":" << ulPPort << "/" << objectName << std::endl;
+        tprintf("request: " + clientIP + ":" + clientPort + "/" + objectName);
     }
+}
+
+void Jsocket::tprintf(std::string s)
+{
+    if(wd) wd->tprintf(s);
 }

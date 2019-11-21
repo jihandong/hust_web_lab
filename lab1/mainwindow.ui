@@ -20,7 +20,7 @@
       <x>20</x>
       <y>60</y>
       <width>241</width>
-      <height>91</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="text">
@@ -31,9 +31,9 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>160</y>
+      <y>140</y>
       <width>241</width>
-      <height>91</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="text">
@@ -44,9 +44,9 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>260</y>
+      <y>220</y>
       <width>241</width>
-      <height>91</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="text">
@@ -57,9 +57,9 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>260</y>
+      <y>220</y>
       <width>511</width>
-      <height>41</height>
+      <height>31</height>
      </rect>
     </property>
    </widget>
@@ -67,9 +67,9 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>160</y>
+      <y>140</y>
       <width>511</width>
-      <height>41</height>
+      <height>31</height>
      </rect>
     </property>
    </widget>
@@ -77,9 +77,9 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>360</y>
+      <y>300</y>
       <width>761</width>
-      <height>201</height>
+      <height>251</height>
      </rect>
     </property>
    </widget>
@@ -87,9 +87,9 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>310</y>
+      <y>260</y>
       <width>511</width>
-      <height>41</height>
+      <height>31</height>
      </rect>
     </property>
    </widget>
@@ -97,9 +97,9 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>210</y>
+      <y>180</y>
       <width>511</width>
-      <height>41</height>
+      <height>31</height>
      </rect>
     </property>
    </widget>
@@ -107,9 +107,9 @@
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>110</y>
+      <y>100</y>
       <width>511</width>
-      <height>41</height>
+      <height>31</height>
      </rect>
     </property>
    </widget>
@@ -132,7 +132,7 @@
       <x>270</x>
       <y>60</y>
       <width>511</width>
-      <height>41</height>
+      <height>31</height>
      </rect>
     </property>
    </widget>

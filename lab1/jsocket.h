@@ -8,11 +8,15 @@
 #include<exception>
 #include<winsock2.h>
 #include<windows.h>
+#include"mainwindow.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
 #define BUFSIZE 1024*8
 #define ERROR404HTML "error404.html"    
+
+//前置声明
+class MainWindow;
 
 class Jsocket
 {
@@ -24,12 +28,13 @@ class Jsocket
     static std::string homePath;    //虚拟路径
     static int connNum;             //连接数量
     static int connNumMax;          //最大连接数量
+    static MainWindow* wd;          //窗口指针
 
 public:
     static void startup();                      //服务器启动
     static void shutdown();                     //服务器关闭
     static bool inservive();                    //服务器运行中
-    static void reset();                        //服务器重置
+    static void reset(MainWindow* w);           //服务器重置
     static void setIP(std::string s);           //设置服务器IP
     static void setPort(int p);                 //设置服务器port
     static void setHomePath(std::string s);     //设置虚拟路径
@@ -48,6 +53,7 @@ private:
     static void sendObject(SOCKET s, std::string p);        //发送对象到会话socket
     static int getContentLength(std::string s);            //得到文件长度
     static void showRequest(SOCKET s, std::string p);       //打印请求信息
+    static void tprintf(std::string s);                     //打印信息到绑定窗口终端
 };
 
 #endif // JSOCKET_H
