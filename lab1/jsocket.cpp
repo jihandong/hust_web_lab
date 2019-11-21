@@ -275,7 +275,6 @@ void Jsocket::handlerThread(SOCKET connSock)
             //处理buf中缓存的请求
             buf[length] = '\0';
             std::string objectName = requestObjectPath(buf);
-            showRequest(connSock, objectName);
             if(objectName == "")
             {
                 //请求对象为空
@@ -327,13 +326,13 @@ void Jsocket::sendObject(SOCKET connSock, std::string objectPath)
     if(object)
     {
         //找到请求对象
-        tprintf("200 " + objectPath);
+        showRequest(connSock, objectPath, "200");
         sprintf(buf, "HTTP/1.1 200 OK\nContent-Length: %d\n\n\0", getContentLength(objectPath) );
     }
     else
     {
         //请求对象不存在，使用ERROR404页面代替
-        tprintf("404 " + objectPath);
+        showRequest(connSock, objectPath, "404");
         sprintf(buf, "HTTP/1.1 404 Not Found\nContent-Length: %d\n\n\0", getContentLength(ERROR404HTML) );
     }
     //发送报文头
@@ -362,7 +361,7 @@ int Jsocket::getContentLength(std::string objectPath)
 }
 
 //显示请求信息
-void Jsocket::showRequest(SOCKET connSock, std::string objectName)
+void Jsocket::showRequest(SOCKET connSock, std::string objectPath, std::string res)
 {
     sockaddr_in addr;
     int nameLen, nRc;
@@ -372,12 +371,19 @@ void Jsocket::showRequest(SOCKET connSock, std::string objectName)
         std::string clientIP = inet_ntoa(addr.sin_addr);
         std::string clientPort = std::to_string(addr.sin_port);
         //打印请求信息
-        tprintf("request: " + clientIP + ":" + clientPort + "/" + objectName);
+        tprintf(res + ": " + clientIP + ":" + clientPort + " " + objectPath);
     }
 }
 
 void Jsocket::tprintf(std::string s)
 {
-    std::cout << s << std::endl;
-    if(wd) wd->tprintf(s);
+    if(wd)
+    {
+        wd->tprintf(s);
+        std::cout << s << std::endl;
+    }
+    else
+    {
+        std::cout << s << " (not sent)" << std::endl;
+    }
 }

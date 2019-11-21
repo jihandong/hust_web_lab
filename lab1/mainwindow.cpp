@@ -98,11 +98,11 @@ void MainWindow::on_pushButtonReset_clicked()
 //打印终端调用接口
 void MainWindow::tprintf(std::string s)
 {
-    emit textBrowser_append(s);
+    emit textBrowser_append(QString::fromStdString(s));
 }
 
 //打印信号槽函数
-void MainWindow::on_textBrowser_append(std::string s)
+void MainWindow::on_textBrowser_append(QString s)
 {
-    ui->textBrowser->append(QString::fromStdString(s));
+    ui->textBrowser->append(s);
 }

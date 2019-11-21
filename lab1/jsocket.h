@@ -49,11 +49,11 @@ public:
     static void handlerThread(SOCKET s);        //会话子线程
 
 private:
-    static std::string requestObjectPath(std::string buf);   //解析请求对象路径
-    static void sendObject(SOCKET s, std::string p);        //发送对象到会话socket
-    static int getContentLength(std::string s);            //得到文件长度
-    static void showRequest(SOCKET s, std::string p);       //打印请求信息
-    static void tprintf(std::string s);                     //打印信息到绑定窗口终端
+    static std::string requestObjectPath(std::string buf);              //解析请求对象路径
+    static void sendObject(SOCKET s, std::string p);                    //发送对象到会话socket
+    static int getContentLength(std::string s);                         //得到文件长度
+    static void showRequest(SOCKET s, std::string p, std::string r);    //打印请求信息
+    static void tprintf(std::string s);                                 //打印信息到绑定窗口终端
 };
 
 #endif // JSOCKET_H

@@ -16,7 +16,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 signals:
-    void textBrowser_append(std::string s);
+    void textBrowser_append(QString s);
 
 public:
     MainWindow(QWidget *parent = nullptr);
@@ -25,7 +25,7 @@ public:
     void tprintf(std::string);  //打印接口
 
 private slots:
-    void on_textBrowser_append(std::string s);
+    void on_textBrowser_append(QString s);
 
     void on_pushButtonIP_clicked();
 

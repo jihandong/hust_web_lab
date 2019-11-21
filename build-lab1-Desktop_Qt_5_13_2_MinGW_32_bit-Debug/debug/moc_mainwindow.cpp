@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_MainWindow_t {
-    QByteArrayData data[10];
-    char stringdata0[170];
+    QByteArrayData data[9];
+    char stringdata0[158];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -35,18 +35,16 @@ static const qt_meta_stringdata_MainWindow_t qt_meta_stringdata_MainWindow = {
 QT_MOC_LITERAL(0, 0, 10), // "MainWindow"
 QT_MOC_LITERAL(1, 11, 18), // "textBrowser_append"
 QT_MOC_LITERAL(2, 30, 0), // ""
-QT_MOC_LITERAL(3, 31, 11), // "std::string"
-QT_MOC_LITERAL(4, 43, 1), // "s"
-QT_MOC_LITERAL(5, 45, 21), // "on_textBrowser_append"
-QT_MOC_LITERAL(6, 67, 23), // "on_pushButtonIP_clicked"
-QT_MOC_LITERAL(7, 91, 25), // "on_pushButtonPort_clicked"
-QT_MOC_LITERAL(8, 117, 25), // "on_pushButtonPath_clicked"
-QT_MOC_LITERAL(9, 143, 26) // "on_pushButtonReset_clicked"
+QT_MOC_LITERAL(3, 31, 1), // "s"
+QT_MOC_LITERAL(4, 33, 21), // "on_textBrowser_append"
+QT_MOC_LITERAL(5, 55, 23), // "on_pushButtonIP_clicked"
+QT_MOC_LITERAL(6, 79, 25), // "on_pushButtonPort_clicked"
+QT_MOC_LITERAL(7, 105, 25), // "on_pushButtonPath_clicked"
+QT_MOC_LITERAL(8, 131, 26) // "on_pushButtonReset_clicked"
 
     },
-    "MainWindow\0textBrowser_append\0\0"
-    "std::string\0s\0on_textBrowser_append\0"
-    "on_pushButtonIP_clicked\0"
+    "MainWindow\0textBrowser_append\0\0s\0"
+    "on_textBrowser_append\0on_pushButtonIP_clicked\0"
     "on_pushButtonPort_clicked\0"
     "on_pushButtonPath_clicked\0"
     "on_pushButtonReset_clicked"
@@ -70,17 +68,17 @@ static const uint qt_meta_data_MainWindow[] = {
        1,    1,   44,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       5,    1,   47,    2, 0x08 /* Private */,
-       6,    0,   50,    2, 0x08 /* Private */,
-       7,    0,   51,    2, 0x08 /* Private */,
-       8,    0,   52,    2, 0x08 /* Private */,
-       9,    0,   53,    2, 0x08 /* Private */,
+       4,    1,   47,    2, 0x08 /* Private */,
+       5,    0,   50,    2, 0x08 /* Private */,
+       6,    0,   51,    2, 0x08 /* Private */,
+       7,    0,   52,    2, 0x08 /* Private */,
+       8,    0,   53,    2, 0x08 /* Private */,
 
  // signals: parameters
-    QMetaType::Void, 0x80000000 | 3,    4,
+    QMetaType::Void, QMetaType::QString,    3,
 
  // slots: parameters
-    QMetaType::Void, 0x80000000 | 3,    4,
+    QMetaType::Void, QMetaType::QString,    3,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -95,8 +93,8 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         auto *_t = static_cast<MainWindow *>(_o);
         Q_UNUSED(_t)
         switch (_id) {
-        case 0: _t->textBrowser_append((*reinterpret_cast< std::string(*)>(_a[1]))); break;
-        case 1: _t->on_textBrowser_append((*reinterpret_cast< std::string(*)>(_a[1]))); break;
+        case 0: _t->textBrowser_append((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 1: _t->on_textBrowser_append((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 2: _t->on_pushButtonIP_clicked(); break;
         case 3: _t->on_pushButtonPort_clicked(); break;
         case 4: _t->on_pushButtonPath_clicked(); break;
@@ -106,7 +104,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
     } else if (_c == QMetaObject::IndexOfMethod) {
         int *result = reinterpret_cast<int *>(_a[0]);
         {
-            using _t = void (MainWindow::*)(std::string );
+            using _t = void (MainWindow::*)(QString );
             if (*reinterpret_cast<_t *>(_a[1]) == static_cast<_t>(&MainWindow::textBrowser_append)) {
                 *result = 0;
                 return;
@@ -156,7 +154,7 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 }
 
 // SIGNAL 0
-void MainWindow::textBrowser_append(std::string _t1)
+void MainWindow::textBrowser_append(QString _t1)
 {
     void *_a[] = { nullptr, const_cast<void*>(reinterpret_cast<const void*>(std::addressof(_t1))) };
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
