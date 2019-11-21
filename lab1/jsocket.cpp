@@ -333,6 +333,8 @@ void Jsocket::sendObject(SOCKET connSock, std::string objectPath)
     {
         //请求对象不存在，使用ERROR404页面代替
         showRequest(connSock, objectPath, "404");
+        objectPath = homePath + ERROR404HTML;
+        object.open(objectPath, std::ios::binary);
         sprintf(buf, "HTTP/1.1 404 Not Found\nContent-Length: %d\n\n\0", getContentLength(ERROR404HTML) );
     }
     //发送报文头
