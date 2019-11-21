@@ -39,7 +39,7 @@ public:
     static void setPort(int p);                 //设置服务器port
     static void setHomePath(std::string s);     //设置虚拟路径
     static std::string getIP();                 //访问服务器IP
-    static int getPort();                       //访问服务器port
+    static int         getPort();               //访问服务器port
     static std::string getHomePath();           //访问虚拟路径
     static bool winsockStartup();               //初始化winsock
     static bool bindStartup();                  //创建并绑定一个监听socket

@@ -19,9 +19,8 @@ MainWindow::~MainWindow()
 void MainWindow::on_pushButtonIP_clicked()
 {
    QString ipQS = ui->comboBoxIP->currentText();
-   js->shutdown(); //关闭机器
-   js->setIP(ipQS.toStdString());  //修改IP
-   js->startup();  //机器重启
+   //修改IP
+   js->setIP(ipQS.toStdString());
    //显示当前IP
    ui->textBrowserIP->setText(ipQS);
 }
@@ -33,10 +32,8 @@ void MainWindow::on_pushButtonPort_clicked()
     //检查端口范围
     if(port > 0 && port < 65536)
     {
-        //关闭机器
-        js->shutdown();
-        //修改端口重启
-        js->startup();
+        //修改端口
+        js->setPort(port);
         //显示当前端口
         QString portQS = QString::number(port);
         ui->textBrowserPort->setText(portQS);
@@ -57,15 +54,12 @@ void MainWindow::on_pushButtonPath_clicked()
 //重启服务器
 void MainWindow::on_pushButtonReset_clicked()
 {
-    //清空服务器对象
-    if(js) js->shutdown();
+    //创建新服务器对象
     delete js;
     js = new Jsocket;
 
     //初始化服务器参数（绑定到此窗口）
     js->reset(this);
-    //启动服务器
-    js->startup();
 
     //显示到GUI
     QString ipQS(QString::fromStdString((js->getIP())));
@@ -104,7 +98,6 @@ void MainWindow::on_pushButtonReset_clicked()
 //打印终端调用接口
 void MainWindow::tprintf(std::string s)
 {
-    std::cout << s << std::endl;
     emit textBrowser_append(s);
 }
 

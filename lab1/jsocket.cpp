@@ -19,6 +19,7 @@ void Jsocket::startup()
     //抛出一个服务器线程
     servThread = new std::thread(Jsocket::acceptStartup);
     //提示
+    tprintf("ip:"+getIP() + " port:"+std::to_string(getPort()) + " path:"+homePath);
     tprintf("startup success");
 }
 
@@ -51,6 +52,9 @@ bool Jsocket::inservive()
 //服务器重置
 void Jsocket::reset(MainWindow* w)
 {
+    //停机
+    shutdown();
+    //重置参数
     servState = false;
     Jsocket::servThread = nullptr;
     servSocket = NULL;
@@ -60,18 +64,24 @@ void Jsocket::reset(MainWindow* w)
     connNum = 0;
     connNumMax = 50;
     wd = w;
+    //重新开机
+    startup();
 }
 
 //设置服务器IP
 void Jsocket::setIP(std::string ip)
 {
+    shutdown();
     servIP = inet_addr(ip.c_str());
+    startup();
 }
 
 //设置服务器port
 void Jsocket::setPort(int n)
 {
+    shutdown();
     servPort = n;
+    startup();
 }
 
 //设置虚拟路径
@@ -265,12 +275,12 @@ void Jsocket::handlerThread(SOCKET connSock)
             //处理buf中缓存的请求
             buf[length] = '\0';
             std::string objectName = requestObjectPath(buf);
+            showRequest(connSock, objectName);
             if(objectName == "")
             {
                 //请求对象为空
-                continue;
+                break;
             }
-            showRequest(connSock, objectName);
             sendObject(connSock, homePath + objectName);
         }
     }
@@ -368,5 +378,6 @@ void Jsocket::showRequest(SOCKET connSock, std::string objectName)
 
 void Jsocket::tprintf(std::string s)
 {
+    std::cout << s << std::endl;
     if(wd) wd->tprintf(s);
 }
