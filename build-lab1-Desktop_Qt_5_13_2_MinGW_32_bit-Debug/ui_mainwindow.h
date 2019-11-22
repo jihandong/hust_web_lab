@@ -37,6 +37,7 @@ public:
     QTextBrowser *textBrowserIP;
     QPushButton *pushButtonReset;
     QComboBox *comboBoxIP;
+    QPushButton *pushButton;
     QMenuBar *menubar;
     QStatusBar *statusbar;
 
@@ -80,6 +81,9 @@ public:
         comboBoxIP = new QComboBox(centralwidget);
         comboBoxIP->setObjectName(QString::fromUtf8("comboBoxIP"));
         comboBoxIP->setGeometry(QRect(270, 60, 511, 31));
+        pushButton = new QPushButton(centralwidget);
+        pushButton->setObjectName(QString::fromUtf8("pushButton"));
+        pushButton->setGeometry(QRect(270, 10, 241, 41));
         MainWindow->setCentralWidget(centralwidget);
         menubar = new QMenuBar(MainWindow);
         menubar->setObjectName(QString::fromUtf8("menubar"));
@@ -101,6 +105,7 @@ public:
         pushButtonPort->setText(QCoreApplication::translate("MainWindow", "change port", nullptr));
         pushButtonPath->setText(QCoreApplication::translate("MainWindow", "change homepath", nullptr));
         pushButtonReset->setText(QCoreApplication::translate("MainWindow", "reset server", nullptr));
+        pushButton->setText(QCoreApplication::translate("MainWindow", "shutdown", nullptr));
     } // retranslateUi
 
 };

@@ -1,19 +1,19 @@
 #ifndef JSOCKET_H
 #define JSOCKET_H
-#include<cstdio>
-#include<iostream>
-#include<fstream>
-#include<string>
-#include<thread>
-#include<exception>
-#include<winsock2.h>
-#include<windows.h>
-#include"mainwindow.h"
+#include <cstdio>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <thread>
+#include <exception>
+#include <winsock2.h>
+#include <windows.h>
+#include "mainwindow.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
 #define BUFSIZE 1024*8
-#define ERROR404HTML "error404.html"    
+#define ERROR404HTML "C:\\Users\\13120\\Desktop\\jsocket\\error404.html"
 
 //前置声明
 class MainWindow;
@@ -39,7 +39,7 @@ public:
     static void setPort(int p);                 //设置服务器port
     static void setHomePath(std::string s);     //设置虚拟路径
     static std::string getIP();                 //访问服务器IP
-    static int         getPort();               //访问服务器port
+    static int getPort();                       //访问服务器port
     static std::string getHomePath();           //访问虚拟路径
     static bool winsockStartup();               //初始化winsock
     static bool bindStartup();                  //创建并绑定一个监听socket

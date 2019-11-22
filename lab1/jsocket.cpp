@@ -37,8 +37,6 @@ void Jsocket::shutdown()
     //等待会话子线程结束
     tprintf("shutdown wait handler threads ...");
     while (connNum > 0) ;
-    //关闭服务器套接字
-    closesocket(servSocket);
     //提示成功
     tprintf("shutdown success");
 }
@@ -228,6 +226,8 @@ bool Jsocket::acceptStartup()
             handlerThreadStartup(connSock);
         }
     }
+    //最终关闭服务器套接字
+    closesocket(servSocket);
 }
 
 //启动会话子线程
@@ -333,7 +333,7 @@ void Jsocket::sendObject(SOCKET connSock, std::string objectPath)
     {
         //请求对象不存在，使用ERROR404页面代替
         showRequest(connSock, objectPath, "404");
-        objectPath = homePath + ERROR404HTML;
+        objectPath = ERROR404HTML;
         object.open(objectPath, std::ios::binary);
         sprintf(buf, "HTTP/1.1 404 Not Found\nContent-Length: %d\n\n\0", getContentLength(ERROR404HTML) );
     }

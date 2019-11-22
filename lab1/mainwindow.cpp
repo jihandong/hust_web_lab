@@ -106,3 +106,14 @@ void MainWindow::on_textBrowser_append(QString s)
 {
     ui->textBrowser->append(s);
 }
+
+void MainWindow::on_pushButton_clicked()
+{
+    if(js && js->inservive())
+        js->shutdown();
+    else
+        tprintf("shutdown already");
+    ui->textBrowserIP->clear();
+    ui->textBrowserPort->clear();
+    ui->textBrowserPath->clear();
+}
